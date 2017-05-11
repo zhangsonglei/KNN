@@ -6,9 +6,16 @@ package com.sonly.knn;
  */
 public class Node {
 
+	private int id;
 	private double[] features;
 	private String category;
 
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
 	public double[] getFeatures() {
 		return features;
 	}

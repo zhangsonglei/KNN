@@ -2,13 +2,11 @@ package com.sonly.knn;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale.Category;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -44,23 +42,28 @@ public class KNN {
 	 */
 	public static List<Node> preDataSet(List<String[]> list, int type) {
 		List<Node> nodes = new ArrayList<>();
-		Node node = new Node();
-		Iterator iterator = list.iterator();
-		double[] features = null;
+		Iterator<String[]> iterator = list.iterator();
+		
 		while(iterator.hasNext()) {
-			String[] strings = iterator.next().toString().split("\t");
+			String[] strings = iterator.next();
+			Node node = new Node();
 			if(1 == type) {
+				double[] features = new double[strings.length - 2];
 				for(int i = 1; i < strings.length - 1; i++)
-					features[i] = Double.parseDouble(strings[i]);
+					features[i - 1] = Double.parseDouble(strings[i]);
+				node.setId(Integer.parseInt(strings[0]));
 				node.setCategory(strings[strings.length - 1]);
+				node.setFeatures(features);	
 			}else if(0 == type){
-				for(int i = 1; i < strings.length; i++) 
+				double[] features = new double[strings.length];
+				for(int i = 0; i < strings.length; i++) 
 					features[i] = Double.parseDouble(strings[i]);
+				
 				node.setCategory(null);
+				node.setFeatures(features);	
 			}else 
 				System.err.println("Wrong data set type\n1 is train data set\n0is test data set");
 			
-			node.setFeatures(features);	
 			nodes.add(node);
 		}
 		
@@ -69,36 +72,46 @@ public class KNN {
 	
 	
 	public static String forecast(List<Node> train, Node test, int k) {
-		String category = new String();
-		Iterator iterator = train.iterator();
+		Iterator<Node> iterator = train.iterator();
 		Node trainNode = new Node();
-		Map<String, Double> map = new HashMap<>();
+		Map<Integer, Double> id_dist = new HashMap<>();
+		Map<Integer, String> id_category = new HashMap<>();
 	
 		while (iterator.hasNext()) {
 			trainNode = (Node)iterator.next();
 			double dist = distance(trainNode, test);
-			map.put(trainNode.getCategory(), dist);
+			id_dist.put(trainNode.getId(), dist);
+			id_category.put(trainNode.getId(), trainNode.getCategory());
 		}
 		
-		List<Map.Entry<String, Double>> list = new ArrayList<Map.Entry<String, Double>>(map.entrySet());  
-        Collections.sort(list, new Comparator<Map.Entry<String, Double>>() {  
-            //Ωµ–Ú≈≈–Ú  
+		
+		
+		List<Map.Entry<Integer, Double>> list = new ArrayList<Map.Entry<Integer, Double>>(id_dist.entrySet());  
+        Collections.sort(list, new Comparator<Map.Entry<Integer, Double>>() {  
+            //…˝–Ú≈≈–Ú  
             @Override  
-            public int compare(Entry<String, Double> o1, Entry<String, Double> o2) {  
-                return o2.getValue().compareTo(o1.getValue());  
+            public int compare(Entry<Integer, Double> o1, Entry<Integer, Double> o2) {
+            	if(o2.getValue() > o1.getValue())
+            		return -1;
+            	else if(o2.getValue() < o1.getValue())
+            		return 1;
+            	else 
+            		return 0;  
             }  
         });
         
         Map<String, Integer> maxCategory = new HashMap<>();
         int count = 0;
-        for(Map.Entry<String, Double> m : list) {
+        for(Map.Entry<Integer, Double> m : list) {
         	if(count == k)
         		break;
+  
+        	String temp = id_category.get(m.getKey());
         	
-        	if(maxCategory.containsKey(m.getKey()))
-        		maxCategory.put(m.getKey(), maxCategory.get(m.getKey()) + 1);
+        	if(maxCategory.containsKey(temp))
+        		maxCategory.put(temp, maxCategory.get(temp) + 1);
         	else
-        		maxCategory.put(m.getKey(), 1);
+        		maxCategory.put(temp, 1);
         	
         	count++;
         }
@@ -112,10 +125,15 @@ public class KNN {
             }  
         });
         
+        for(int ks=0;ks<list2.size();ks++) {
+        	Entry<String, Integer> coutMap = list2.get(ks);
+        	System.out.println(coutMap.getKey()+" "+coutMap.getValue());
+        }
+        	
         return list2.get(0).getKey();
 	}
 	
-	public static void KNN(String train, String test, String result, int k) throws IOException {
+	public static void kNN(String train, String test, String result, int k) throws IOException {
 		List<String[]> trainData = FileOperator.readFile(train);
 		List<String[]> testData = FileOperator.readFile(test);
 		
@@ -124,12 +142,12 @@ public class KNN {
 			List<Node> testSet = preDataSet(testData, 0);
 			List<String> writeToFile = new ArrayList<>();
 			
-			Iterator iterator = testSet.iterator();
+			Iterator<Node> iterator = testSet.iterator();
 			while(iterator.hasNext()) {
 				Node node = (Node)iterator.next();
 				String category = forecast(trainSet, node, k);
 				node.setCategory(category);
-			writeToFile.add(toString(node));
+				writeToFile.add(toString(node));
 			}
 			
 			FileOperator.writeFile(writeToFile, result);
@@ -152,7 +170,7 @@ public class KNN {
 		String test = "Files\\test_data_set.utf8";
 		String result = "Files\\result.utf8";
 		
-		KNN(train,test,result,5);
+		kNN(train,test,result,5);
 	}
 
 }
