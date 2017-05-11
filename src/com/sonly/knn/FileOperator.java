@@ -11,8 +11,14 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataSet {
+public class FileOperator {
 
+	/**
+	 * read file by line and save to List
+	 * @param path
+	 * @return List<String[]>
+	 * @throws IOException
+	 */
 	public static List<String[]> readFile(String path) throws IOException {
 		List<String[]> lines = new ArrayList<>();
 		File file = new File(path);
@@ -34,6 +40,12 @@ public class DataSet {
 		
 	}
 	
+	/**
+	 * write to file
+	 * @param strings
+	 * @param path
+	 * @throws IOException
+	 */
 	public static void writeFile(String[] strings, String path) throws IOException {
 		File file = new File(path);
 		
