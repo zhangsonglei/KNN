@@ -30,7 +30,7 @@ public class KNN {
 		}else {
 			System.err.println("different length in features");
 		}
-		return distance;
+		return Math.sqrt(distance);
 	}
 	
 	/**
@@ -70,7 +70,13 @@ public class KNN {
 		return nodes;
 	}
 	
-	
+	/**
+	 * to forecast a data's category
+	 * @param train
+	 * @param test
+	 * @param k
+	 * @return
+	 */
 	public static String forecast(List<Node> train, Node test, int k) {
 		Iterator<Node> iterator = train.iterator();
 		Node trainNode = new Node();
@@ -83,9 +89,7 @@ public class KNN {
 			id_dist.put(trainNode.getId(), dist);
 			id_category.put(trainNode.getId(), trainNode.getCategory());
 		}
-		
-		
-		
+			
 		List<Map.Entry<Integer, Double>> list = new ArrayList<Map.Entry<Integer, Double>>(id_dist.entrySet());  
         Collections.sort(list, new Comparator<Map.Entry<Integer, Double>>() {  
             //…˝–Ú≈≈–Ú  
@@ -124,15 +128,18 @@ public class KNN {
                 return o2.getValue().compareTo(o1.getValue());  
             }  
         });
-        
-        for(int ks=0;ks<list2.size();ks++) {
-        	Entry<String, Integer> coutMap = list2.get(ks);
-        	System.out.println(coutMap.getKey()+" "+coutMap.getValue());
-        }
         	
         return list2.get(0).getKey();
 	}
 	
+	/**
+	 * 
+	 * @param train
+	 * @param test
+	 * @param result
+	 * @param k
+	 * @throws IOException
+	 */
 	public static void kNN(String train, String test, String result, int k) throws IOException {
 		List<String[]> trainData = FileOperator.readFile(train);
 		List<String[]> testData = FileOperator.readFile(test);
@@ -156,6 +163,11 @@ public class KNN {
 		}
 	}
 	
+	/**
+	 * translate Node to String
+	 * @param node
+	 * @return
+	 */
 	public static String toString(Node node) {
 		String string = new String();
 		
@@ -165,6 +177,7 @@ public class KNN {
 		string += node.getCategory();
 		return string;
 	}
+	
 	public static void main(String[] args) throws IOException {
 		String train = "Files\\train_data_set.utf8";
 		String test = "Files\\test_data_set.utf8";
