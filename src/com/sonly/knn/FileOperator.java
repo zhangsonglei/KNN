@@ -46,7 +46,7 @@ public class FileOperator {
 	 * @param path
 	 * @throws IOException
 	 */
-	public static void writeFile(String[] strings, String path) throws IOException {
+	public static void writeFile(List<String> strings, String path) throws IOException {
 		File file = new File(path);
 		
 		OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(file));
